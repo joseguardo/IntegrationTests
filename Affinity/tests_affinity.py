@@ -1,6 +1,8 @@
 import requests
 import os
 from dotenv import load_dotenv
+from rich import print as rprint
+from rich.pretty import Pretty
 
 load_dotenv()
 api_key = os.getenv("BEARER_TOKEN")
@@ -341,16 +343,43 @@ def update_single_field_on_single_entry(entry_id: str, list_id: str, field_id: s
         print(f"Failed to update field. Status code: {response.status_code}, Response: {response.text}")
     return None
 
-if __name__ == "__main__":
-    #get_list_entries_by_list_id(51750)c
-    #get_single_entry_by_entry_id_on_specific_list_by_listid(14355554, 51750)
-    result = get_single_field_on_single_entry(entry_id="14355566", list_id="51750", field_id="last-event")
-    #result = get_fields_on_single_entry(entry_id="14355566", list_id="51750")
-    print(result)
-    from rich import print as rprint
-    from rich.pretty import Pretty
-    update_single_field_on_single_entry(entry_id="14355566", list_id="51750", field_id="dealroom-location", value="Australia") # type: ignore
 
+def get_opportunities(): 
+    """Get a list of opportunities."""
+    url = "https://api.affinity.co/v2/opportunities"
+    query = {
+    "limit": "10",
+    }
+    headers = {"Authorization": f"Bearer {api_key}"}
+    response = requests.get(url, headers=headers, params=query)
+    data = response.json()
+    print(data)
+
+def get_persons(): 
+    """Get a list of persons."""
+    url = "https://api.affinity.co/v2/persons"
+    query = {
+    "limit": "10",
+    }
+    headers = {"Authorization": f"Bearer {api_key}"}
+    response = requests.get(url, headers=headers, params=query)
+    data = response.json()
+    data = data["data"]
+    for person in data:
+        name = person["firstName"]
+        lastname = person["lastName"]
+        name = f"{name} {lastname}"
+        id = person["id"]
+        email = person.get("primaryEmailAddress")
+        print(f"Person: {name} (ID: {id}, Email: {email})")
+
+
+if __name__ == "__main__":
+    #get_list_entries_by_list_id(51750)
+    #get_single_entry_by_entry_id_on_specific_list_by_listid(14355554, 51750)
+    #result = get_single_field_on_single_entry(entry_id="14355566", list_id="51750", field_id="last-event")
+    #result = get_fields_on_single_entry(entry_id="14355566", list_id="51750")
+    get_persons()
 
     #rprint(Pretty(result["summary"], indent_guides=True))
 
